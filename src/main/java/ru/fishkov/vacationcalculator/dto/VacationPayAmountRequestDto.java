@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.format.annotation.DateTimeFormat;
-import ru.fishkov.vacationcalculator.util.DateUtil;
+import ru.fishkov.vacationcalculator.util.DateTimeUtil;
 
 import javax.validation.constraints.*;
 import java.math.BigDecimal;
@@ -24,9 +24,9 @@ public class VacationPayAmountRequestDto {
     @Min(1)
     Integer duration;
 
-    @DateTimeFormat(pattern = DateUtil.DATE_FORMAT)
+    @DateTimeFormat(pattern = DateTimeUtil.DATE_FORMAT)
     LocalDate startDate;
-    @DateTimeFormat(pattern = DateUtil.DATE_FORMAT)
+    @DateTimeFormat(pattern = DateTimeUtil.DATE_FORMAT)
     LocalDate endDate;
 
     @JsonProperty("avg")
@@ -37,7 +37,8 @@ public class VacationPayAmountRequestDto {
     @AssertTrue(message = "Exactly one of 'duration' or valid date range ('startDate' and 'endDate') must be provided.")
     public boolean isDurationValid() {
         if (duration == null) {
-            return startDate != null && endDate != null && startDate.isBefore(endDate);
+            return startDate != null && endDate != null && startDate.isBefore(endDate)
+                    && (endDate.getYear() - startDate.getYear() < 10);
         } else {
             return startDate == null && endDate == null;
         }

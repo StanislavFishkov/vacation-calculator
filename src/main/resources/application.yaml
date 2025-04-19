@@ -4,4 +4,4 @@ server:
 spring:
   output:
     ansi:
-      enabled: ALWAYS
+      enabled: always
