@@ -11,18 +11,18 @@ public class Year2005HolidaysStore implements YearHolidaysStore {
 
     public Year2005HolidaysStore() {
         holidays = new ArrayList<>();
-        holidays.add(100 + 1);
-        holidays.add(100 + 2);
-        holidays.add(100 + 3);
-        holidays.add(100 + 4);
-        holidays.add(100 + 5);
-        holidays.add(100 + 7);
-        holidays.add(2 * 100 + 23);
-        holidays.add(3 * 100 + 8);
-        holidays.add(5 * 100 + 1);
-        holidays.add(5 * 100 + 9);
-        holidays.add(6 * 100 + 12);
-        holidays.add(11 * 100 + 4);
+        holidays.add(dayMonthHash(1,1));
+        holidays.add(dayMonthHash(1,2));
+        holidays.add(dayMonthHash(1,3));
+        holidays.add(dayMonthHash(1,4));
+        holidays.add(dayMonthHash(1,5));
+        holidays.add(dayMonthHash(1,7));
+        holidays.add(dayMonthHash(2,23));
+        holidays.add(dayMonthHash(3,8));
+        holidays.add(dayMonthHash(5,1));
+        holidays.add(dayMonthHash(5,9));
+        holidays.add(dayMonthHash(6,12));
+        holidays.add(dayMonthHash(11,4));
     }
 
     @Override

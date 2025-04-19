@@ -39,10 +39,10 @@ public class BusinessCalendarServiceImpl implements BusinessCalendarService {
                 .orElseThrow(() -> new ValidationException(String.format("There is no list of holidays for year %s", year)))
                 .getValue();
 
-        int start = startDate.getMonthValue() * 100 + startDate.getDayOfMonth();
-        int end = endDate.getMonthValue() * 100 + endDate.getDayOfMonth();
+        int start = holidaysStoreEntry.dayMonthHash(startDate);
+        int end = holidaysStoreEntry.dayMonthHash(endDate);
 
-        long result =holidaysStoreEntry.getHolidays().stream().filter(h -> h >= start && h <= end).count();
+        long result = holidaysStoreEntry.getHolidays().stream().filter(h -> h >= start && h <= end).count();
         log.debug("Holidays count result is {} for dates {}, {}", result, startDate, endDate);
         return holidaysStoreEntry.getHolidays().stream().filter(h -> h >= start && h <= end).count();
     }
