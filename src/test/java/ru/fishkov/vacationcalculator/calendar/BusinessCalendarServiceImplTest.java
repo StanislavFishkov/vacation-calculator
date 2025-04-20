@@ -16,6 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
 
 class BusinessCalendarServiceImplTest {
+
     private static BusinessCalendarServiceImpl calendarService;
 
     @BeforeAll
