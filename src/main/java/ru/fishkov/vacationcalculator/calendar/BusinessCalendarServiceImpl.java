@@ -21,29 +21,41 @@ public class BusinessCalendarServiceImpl implements BusinessCalendarService {
 
     @Override
     public long getWorkingDaysCount(LocalDate startDate, LocalDate endDate) {
+        if (endDate.isBefore(startDate))
+            throw new ValidationException(String.format("End date %s is before start date %s", endDate, startDate));
+
         long result = Math.abs(ChronoUnit.DAYS.between(startDate, endDate)) + 1;
 
         int startYear = startDate.getYear();
         int endYear = endDate.getYear();
 
-        for (int y = startYear; y <= endYear; y++) {
-            result -= getHolidaysForDateRange(y == startYear ? startDate : LocalDate.of(y, 1, 1),
-                    y == endYear ? endDate : LocalDate.of(y, 12, 31), y);
-        }
-        log.debug("Working days count result is {} for dates {}, {}", result, startDate, endDate);
-        return result;
-    }
-
-    private long getHolidaysForDateRange(LocalDate startDate, LocalDate endDate, Integer year) {
-        YearHolidaysStore holidaysStoreEntry = Optional.ofNullable(holidaysByYears.floorEntry(year))
-                .orElseThrow(() -> new ValidationException(String.format("There is no list of holidays for year %s", year)))
+        YearHolidaysStore holidaysStoreEntry = Optional.ofNullable(holidaysByYears.floorEntry(startYear))
+                .orElseThrow(() -> new ValidationException(String.format("There is no list of holidays for year %s", startYear)))
                 .getValue();
 
+        // add holidays from the start of the first year to the startDate to eliminate subtraction of the whole year holidays
         int start = holidaysStoreEntry.dayMonthHash(startDate);
-        int end = holidaysStoreEntry.dayMonthHash(endDate);
+        result += holidaysStoreEntry.getHolidays().stream().filter(h -> h < start).count();
 
-        long result = holidaysStoreEntry.getHolidays().stream().filter(h -> h >= start && h <= end).count();
-        log.debug("Holidays count result is {} for dates {}, {}", result, startDate, endDate);
-        return holidaysStoreEntry.getHolidays().stream().filter(h -> h >= start && h <= end).count();
+        // subtract all holidays for the year startYear to the year endYear both inclusively
+        int curYear = startYear;
+        while (curYear <= endYear) {
+            Map.Entry<Integer, YearHolidaysStore> holidaysStoreEntryNext = holidaysByYears.higherEntry(curYear);
+            int nextChangeYear = endYear + 1;
+            int curHolidaysCount = holidaysStoreEntry.getHolidays().size();
+            if (holidaysStoreEntryNext != null && nextChangeYear > holidaysStoreEntryNext.getKey()) {
+                nextChangeYear = holidaysStoreEntryNext.getKey();
+                holidaysStoreEntry = holidaysStoreEntryNext.getValue();
+            }
+            result -= (long) (nextChangeYear - curYear) * curHolidaysCount;
+            curYear = nextChangeYear;
+        }
+
+        // add holidays from the endDate to the end of the last year eliminate subtraction of the whole year holidays
+        int end = holidaysStoreEntry.dayMonthHash(endDate);
+        result += holidaysStoreEntry.getHolidays().stream().filter(h -> h > end).count();
+
+        log.debug("Working days count result is {} for dates {}, {}", result, startDate, endDate);
+        return result;
     }
 }
